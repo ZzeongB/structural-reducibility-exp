@@ -12,6 +12,7 @@ import sklearn
 from bayes_opt import BayesianOptimization
 from sklearn.manifold import TSNE
 from zadu import zadu
+import autosklearn.regression
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Process some integers.")
@@ -65,8 +66,8 @@ SCORE_TYPE = [
     "d2_pinball_score",
     "d2_tweedie_score",
 ]
-input = pd.read_csv("../../data/input.csv", index_col=0)
-label = pd.read_csv("../../data/output.csv", index_col=0)
+input = pd.read_csv("data/input.csv", index_col=0)
+label = pd.read_csv("data/output.csv", index_col=0)
 
 RESULT_DIR = f"result/application/{RAND_SEED}"
 
@@ -88,20 +89,20 @@ logging.info(idx)
 X = input.loc[idx, :]
 y = label.loc[idx, t]
 
-# reg = autosklearn.regression.AutoSklearnRegressor(
-#     time_left_for_this_task=600,
-#     per_run_time_limit=30,
-#     memory_limit=10000,
-#     resampling_strategy="cv",
-#     resampling_strategy_arguments={"folds": 5},
-# )
-# reg.fit(X, y)
+reg = autosklearn.regression.AutoSklearnRegressor(
+    time_left_for_this_task=600,
+    per_run_time_limit=30,
+    memory_limit=10000,
+    resampling_strategy="cv",
+    resampling_strategy_arguments={"folds": 5},
+)
+reg.fit(X, y)
 
-# joblib.dump(reg, f"{MODEL_DIR}/rand-{RAND_SEED}.pkl")
-# print(reg.leaderboard())
+joblib.dump(reg, f"{MODEL_DIR}/rand-{RAND_SEED}.pkl")
+print(reg.leaderboard())
 
-# pred = reg.predict(X)
-# print(f"{t} - R2:", sklearn.metrics.r2_score(y, pred))
+pred = reg.predict(X)
+print(f"{t} - R2:", sklearn.metrics.r2_score(y, pred))
 
 reg = joblib.load(f"{MODEL_DIR}/rand-{RAND_SEED}.pkl")
 
